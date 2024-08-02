@@ -1,1 +1,1 @@
-# rickandmortyv2
+# rickandmorty
