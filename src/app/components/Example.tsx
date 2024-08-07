@@ -83,6 +83,25 @@ export default function Example() {
     }
   };
 
+  const fetchAllPages = async () => {
+    setIsLoading(true);
+    let allCharacters: Character[] = [];
+    let page = 1;
+    while (true) {
+      const response = await fetch(
+        `https://rickandmortyapi.com/api/character?page=${page}`
+      );
+      const data = await response.json();
+      allCharacters = [...allCharacters, ...data.results];
+      if (!data.info.next) {
+        break;
+      }
+      page++;
+    }
+    setCharacters(allCharacters);
+    setIsLoading(false);
+  };
+
   // Function to format episodes
   const formatEpisodes = (episodes: string[]) => {
     const episodeNumbers = episodes.map((url) =>
@@ -164,12 +183,20 @@ export default function Example() {
   const handleStatusChange = (status: string) => {
     setStatusFilter(status);
     setCurrentPage(1);
+    fetchAllPages();
   };
 
   const handleGenderChange = (gender: string) => {
     setGenderFilter(gender);
     setCurrentPage(1);
+    fetchAllPages();
   };
+
+  useEffect(() => {
+    if (searchTerm) {
+      fetchAllPages();
+    }
+  }, [searchTerm]);
 
   return (
     <div className="bg-gradient-to-b from-purple-950 to-black">
@@ -245,16 +272,19 @@ export default function Example() {
                 </Listbox.Options>
               </div>
             </Listbox>
+          </div>
 
+          {/* Clear Filters Button */}
+          <div className="text-right">
             <button
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               onClick={clearFilters}
-              className="inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
             >
               Clear Filters
             </button>
           </div>
 
-          {/* Characters List */}
+          {/* Characters Grid */}
           <ul
             role="list"
             className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 lg:grid-cols-3 lg:gap-8"
